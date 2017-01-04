@@ -266,6 +266,12 @@ public class ArrayUtils {
     for (int i=0; i<ds.length; i++) div(ds[i],n[i]);
     return ds;
   }
+
+  public static double[][] div(double[][] ds, double[] n) {
+    for (int i=0; i<ds.length; i++) div(ds[i],n[i]);
+    return ds;
+  }
+
   public static double[] div(double[] ds, long[] n) {
     for (int i=0; i<ds.length; i++) ds[i]/=n[i];
     return ds;
