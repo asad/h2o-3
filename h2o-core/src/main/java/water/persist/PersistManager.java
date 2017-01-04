@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
@@ -248,6 +249,35 @@ public class PersistManager {
    */
   public void importFiles(String path, String pattern, ArrayList<String> files, ArrayList<String> keys, ArrayList<String> fails, ArrayList<String> dels) {
     String s = path.toLowerCase(); // path must not be null
+    //Check path for a glob
+    String[] pathSplit = path.split("(?=\\\\|/)"); //Split path by back/forward slashes
+    boolean hasPattern = false;
+    //Loop through and check for specific globs. In this case they are:
+    //1."*" (matches any number of any characters including none)
+    //2."?" (matches any single character)
+    //3."[]"(matches anything in brackets)
+    for(int i = 0; i < pathSplit.length; i++){
+      if(pathSplit[i].contains("*") || pathSplit[i].contains("?") || pathSplit[i].contains("[")){
+        if(pattern == null || pattern.isEmpty()) {
+          pattern = pathSplit[i].toString();
+        }else{
+          pattern = pattern.concat(pathSplit[i].toString());
+        }
+        hasPattern = true;
+      }
+    }
+    if(hasPattern){
+      path = path.replace(pattern,""); //Subset "path" by removing "pattern"
+    }
+
+    //Do some replacements to comply with equivalent Java regex
+    if(pattern.contains("*")){
+      pattern = pattern.replace("*",".*");
+    }
+    if(pattern.contains("?")){
+      pattern = pattern.replace("?",".");
+    }
+
     if( s.startsWith("http:") || s.startsWith("https:") ) {
       try {
         java.net.URL url = new URL(path);
